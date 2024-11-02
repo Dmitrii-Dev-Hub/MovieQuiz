@@ -132,14 +132,6 @@ final class MovieQuizViewController: UIViewController {
         return questionStep
     }
     
-    private func addFont() {
-        questionLabel.font = UIFont(name: "YSDisplay-Medium", size : 20)
-        noButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
-        yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
-        textLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
-        indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
-    }
-    
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == question.count - 1 {
             // идём в состояние "Результат квиза"
@@ -158,14 +150,14 @@ final class MovieQuizViewController: UIViewController {
         // константа с кнопкой для системного алерта
         
     }
-    // запускаем задачу через 1 секунду c помощью диспетчера задач
     
-    
-    // приватный метод, который и меняет цвет рамки, и вызывает метод перехода
-    // принимает на вход булевое значение и ничего не возвращает
-    
-    
-    
+    private func addFont() {
+        questionLabel.font = UIFont(name: "YSDisplay-Medium", size : 20)
+        noButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
+        yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
+        textLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
+        indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
+    }
     
     
 }
