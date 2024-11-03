@@ -58,6 +58,12 @@ final class MovieQuizViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         imageView.layer.cornerRadius = 20
+        
+        let nextQuestion = question[currentQuestionIndex]
+        let viewModel = convert(model: nextQuestion)
+        
+        show(quiz: viewModel)
+        
         questionLabel.font = UIFont(name: "YSDisplay-Medium", size : 20)
         noButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
         yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
@@ -94,12 +100,16 @@ final class MovieQuizViewController: UIViewController {
         if isCorrect {
             correctAnswers += 1
         }
-        
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.yesButton.isEnabled = true
+            self.noButton.isEnabled = true
             self.imageView.layer.borderColor = UIColor.clear.cgColor
             // код, который мы хотим вызвать через 1 секунду
             self.showNextQuestionOrResults()
         }
+        
     }
     
     private func show(quiz step: QuizStepViewModel) {
