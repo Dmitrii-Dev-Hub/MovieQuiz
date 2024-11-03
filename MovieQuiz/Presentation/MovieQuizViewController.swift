@@ -2,13 +2,13 @@ import UIKit
 
 
 
-struct QuizStepViewModel {
+private struct QuizStepViewModel {
     let image: UIImage
     let question: String
     let questionNumber: String
 }
 
-struct QuizQuestion {
+private struct QuizQuestion {
     // строка с названием фильма,
     // совпадает с названием картинки афиши фильма в Assets
     let image: String
@@ -19,7 +19,7 @@ struct QuizQuestion {
 }
 
 // для состояния "Результат квиза"
-struct QuizResultsViewModel {
+private struct QuizResultsViewModel {
     // строка с заголовком алерта
     let title: String
     // строка с текстом о количестве набранных очков
@@ -31,12 +31,12 @@ struct QuizResultsViewModel {
 final class MovieQuizViewController: UIViewController {
     
     // MARK: - IB Outlets
-    @IBOutlet weak var questionLabel: UILabel!
-    @IBOutlet weak var yesButton: UIButton!
-    @IBOutlet weak var noButton: UIButton!
-    @IBOutlet weak var textLabel: UILabel!
-    @IBOutlet weak var indexLabel: UILabel!
-    @IBOutlet var imageView: UIImageView!
+    @IBOutlet private weak var questionLabel: UILabel!
+    @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet private weak var noButton: UIButton!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var indexLabel: UILabel!
+    @IBOutlet private weak var imageView: UIImageView!
     
     // MARK: - Private Properties
     private var currentQuestionIndex = 0
@@ -91,7 +91,7 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor(resource: .ypGreen).cgColor : UIColor(resource: .ypRed).cgColor
         
-    if isCorrect {
+        if isCorrect {
             correctAnswers += 1
         }
         
