@@ -63,7 +63,6 @@ final class MovieQuizViewController: UIViewController {
         yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
         textLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
         indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
-        noButton.configuration?.title
     }
     
     // MARK: - IB Actions
@@ -90,9 +89,9 @@ final class MovieQuizViewController: UIViewController {
     private func showAnswerResult(isCorrect: Bool){
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.green.cgColor : UIColor.red.cgColor
+        imageView.layer.borderColor = isCorrect ? UIColor(resource: .ypGreen).cgColor : UIColor(resource: .ypRed).cgColor
         
-        if isCorrect {
+    if isCorrect {
             correctAnswers += 1
         }
         
