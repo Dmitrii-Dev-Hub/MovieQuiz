@@ -16,7 +16,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var alertPresented = AlertPresenter()
-    //    private var question = QuestionFactory()
     private var staticServise: StatisticServiceProtocol?
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
@@ -102,13 +101,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self else { return }
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
-            
-            //            if let nextQuestion = self.questionFactory.requestNextQuestion() {
-            //                self.currentQuestion = nextQuestion
-            //                let viewModel = self.convert(model: nextQuestion)
-            //
-            //                self.show(quiz: viewModel)
-            //            }
         }
         alert.addAction(tryButton)
         alert.preferredAction = tryButton
