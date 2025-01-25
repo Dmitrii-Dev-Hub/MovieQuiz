@@ -12,29 +12,31 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     // MARK: - Private Properties
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var alertPresented = AlertPresenter()
     private var staticServise: StatisticServiceProtocol?
     private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol?
+    private var questionFactory: QuestionFactory?
     private var currentQuestion: QuizQuestion?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+  
         alertPresented.delegate = self
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
+        let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         self.questionFactory = questionFactory
         imageView.layer.cornerRadius = 20
+//        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+//        statisticService = StatisticService()
+        questionFactory.loadData()
         
         staticServise = StatisticServiceImplementation()
-
-        questionFactory.requestNextQuestion()
-
+        
+        showIndicator()
         
         questionLabel.font = UIFont(name: "YSDisplay-Medium", size : 20)
         noButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
@@ -42,6 +44,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         textLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
         indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
     }
+    
+    
     
     // MARK: - IB Actions
     
@@ -62,7 +66,32 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
+    
     // MARK: - Private Methods
+//    private func showLoadingIndicator() {
+////        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
+//        activityIndicator.startAnimating() // включаем анимацию
+//    }
+    
+    private func showNetworkError(message: String) {
+//        showLoadingIndicator()
+        
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        
+        alertPresented.showAlert(model: model)
+    }
+
+    
+    
     
     // приватный метод, который содержит логику перехода в один из сценариев
     // метод ничего не принимает и ничего не возвращает
@@ -80,6 +109,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self else { return }
             self.yesButton.isEnabled = true
             self.noButton.isEnabled = true
+            showIndicator()
             self.imageView.layer.borderColor = UIColor.clear.cgColor
             // код, который мы хотим вызвать через 1 секунду
             self.showNextQuestionOrResults()
@@ -109,11 +139,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+        return QuizStepViewModel(
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-        return questionStep
     }
     
 
@@ -129,6 +158,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
+        hideIndicator()
     }
     
     
@@ -149,11 +179,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 guard let self = self else { return }
                 self.correctAnswers = 0
                 self.currentQuestionIndex = 0
+                showIndicator()
                 self.questionFactory?.requestNextQuestion()
             }
             
             alertPresented.showAlert(model: viewModel)
         } else {
+            showIndicator()
             currentQuestionIndex += 1
             questionFactory?.requestNextQuestion()
             
@@ -170,5 +202,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
     }
     
+    
+    func didLoadDataFromServer() {
+        questionFactory?.requestNextQuestion()
+        hideIndicator()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
+    }
+    
+    func showIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    func hideIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
     
 }
