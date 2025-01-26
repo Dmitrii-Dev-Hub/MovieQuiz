@@ -5,7 +5,6 @@ class QuestionFactory: QuestionFactoryProtocol {
 
     private let moviesLoader: MoviesLoading
     weak var delegate: QuestionFactoryDelegate?
-   //Для переменных из сервера
     private var movies: [MostPopularMovie] = []
     
     
