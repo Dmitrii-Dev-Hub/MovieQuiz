@@ -2,8 +2,6 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
-    
-    
     // MARK: - IB Outlets
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var yesButton: UIButton!
@@ -11,8 +9,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
-    
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     // MARK: - Private Properties
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
@@ -25,57 +23,42 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-  
+        
         alertPresented.delegate = self
         let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         self.questionFactory = questionFactory
         imageView.layer.cornerRadius = 20
-//        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-//        statisticService = StatisticService()
         questionFactory.loadData()
-        
         staticServise = StatisticServiceImplementation()
-        
         showIndicator()
-        
-        questionLabel.font = UIFont(name: "YSDisplay-Medium", size : 20)
-        noButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
-        yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
-        textLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
-        indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
+        setupFonts()
     }
-    
-    
-    
     // MARK: - IB Actions
     
-    // метод вызывается, когда пользователь нажимает на кнопку "Да"
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
+        guard let currentQuestion else { return }
         let givenAnswer = true
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
+        guard let currentQuestion else { return }
         let givenAnswer = false
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
-    
     // MARK: - Private Methods
-//    private func showLoadingIndicator() {
-////        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
-//        activityIndicator.startAnimating() // включаем анимацию
-//    }
+    
+    private func setupFonts() {
+       questionLabel.font = UIFont(name: "YSDisplay-Medium", size : 20)
+       noButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
+       yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
+       textLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
+       indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
+    }
     
     private func showNetworkError(message: String) {
-//        showLoadingIndicator()
-        
+        //        showLoadingIndicator()
         let model = AlertModel(title: "Ошибка",
                                message: message,
                                buttonText: "Попробовать еще раз") { [weak self] in
@@ -89,12 +72,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         alertPresented.showAlert(model: model)
     }
-
     
-    
-    
-    // приватный метод, который содержит логику перехода в один из сценариев
-    // метод ничего не принимает и ничего не возвращает
     private func showAnswerResult(isCorrect: Bool){
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -103,18 +81,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         if isCorrect {
             correctAnswers += 1
         }
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
+        
+        changeStateButton(isEnabled: false)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self else { return }
-            self.yesButton.isEnabled = true
-            self.noButton.isEnabled = true
+            changeStateButton(isEnabled: true)
             showIndicator()
             self.imageView.layer.borderColor = UIColor.clear.cgColor
-            // код, который мы хотим вызвать через 1 секунду
             self.showNextQuestionOrResults()
         }
-        
+    }
+    
+    private func changeStateButton(isEnabled: Bool) {
+        noButton.isEnabled = isEnabled
+        yesButton.isEnabled = isEnabled
     }
     
     private func show(quiz step: QuizStepViewModel) {
@@ -126,7 +106,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func show(quiz result: QuizResultsViewModel) {
         let alert = UIAlertController(title: result.title, message: result.text , preferredStyle: .alert)
-        
         let tryButton = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
             guard let self else { return }
             self.currentQuestionIndex = 0
@@ -145,12 +124,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     
-
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
             return
         }
-        
         currentQuestion = question
         let viewModel = convert(model: question)
         show(quiz: viewModel)
@@ -160,8 +137,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         hideIndicator()
     }
-    
-    
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
@@ -190,26 +165,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             questionFactory?.requestNextQuestion()
             
         }
-        
-        
     }
-    
-    private func addFont() {
-        questionLabel.font = UIFont(name: "YSDisplay-Medium", size : 20)
-        noButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
-        yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
-        textLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
-        indexLabel.font = UIFont(name: "YSDisplay-Medium", size: 20)
-    }
-    
     
     func didLoadDataFromServer() {
         questionFactory?.requestNextQuestion()
         hideIndicator()
     }
-
+    
     func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
+        showNetworkError(message: error.localizedDescription)
     }
     
     func showIndicator() {
