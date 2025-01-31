@@ -13,9 +13,7 @@ private enum Keys: String {
 
 final class StatisticServiceImplementation: StatisticServiceProtocol {
     
-    
     let storage: UserDefaults = .standard
-    
     var correct: Int {
         get {
             storage.integer(forKey: Keys.correct.rawValue)
@@ -25,7 +23,7 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
         }
     }
     
-var total: Int {
+    var total: Int {
         get {
             storage.integer(forKey: Keys.total.rawValue)
         }
@@ -35,12 +33,12 @@ var total: Int {
     }
     
     var totalAccuracy: Double {
-          get {
-              let total = Double(storage.integer(forKey: Keys.total.rawValue))
-              let correct = Double(storage.integer(forKey: Keys.correct.rawValue))
-              return total > 0 ? (correct/total) * 100 : 0
-          }
-      }
+        get {
+            let total = Double(storage.integer(forKey: Keys.total.rawValue))
+            let correct = Double(storage.integer(forKey: Keys.correct.rawValue))
+            return total > 0 ? (correct/total) * 100 : 0
+        }
+    }
     
     var gamesCount: Int {
         get {
