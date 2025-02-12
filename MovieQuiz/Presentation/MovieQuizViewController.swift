@@ -12,23 +12,22 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
-    private var correctAnswers: Int = .zero
-    private var alertPresented = AlertPresenter()
-    private var staticServise: StatisticServiceProtocol?
-    private var questionFactory: QuestionFactory?
-    private var currentQuestion: QuizQuestion?
+    //var correctAnswers: Int = .zero
+    //private var alertPresented = AlertPresenter()
+    //private var staticServise: StatisticServiceProtocol?
+    var questionFactory: QuestionFactory?
     private let presenter = MovieQuizPresenter()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        alertPresented.delegate = self
+        presenter.alertPresented.delegate = self
         let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         
         self.questionFactory = questionFactory
         questionFactory.loadData()
-        staticServise = StatisticServiceImplementation()
+        presenter.staticServise = StatisticServiceImplementation()
         
         showIndicator()
         activityIndicator.hidesWhenStopped = true
@@ -69,12 +68,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self else { return }
             
             self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
+            presenter.correctAnswers = 0
             
             self.questionFactory?.requestNextQuestion()
         }
         
-        alertPresented.showAlert(model: model)
+        presenter.alertPresented.showAlert(model: model)
     }
     
     func showAnswerResult(isCorrect: Bool){
@@ -83,7 +82,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.borderColor = isCorrect ? UIColor(resource: .ypGreen).cgColor : UIColor(resource: .ypRed).cgColor
         
         if isCorrect {
-            correctAnswers += 1
+            presenter.correctAnswers += 1
         }
         
         changeStateButton(isEnabled: false)
@@ -93,7 +92,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self else { return }
             changeStateButton(isEnabled: true)
             self.imageView.layer.borderColor = UIColor.clear.cgColor
-            self.showNextQuestionOrResults()
+            self.presenter.correctAnswers = presenter.correctAnswers
+            self.presenter.questionFactory = self.questionFactory
+            self.presenter.showNextQuestionOrResults()
+            
         }
     }
     
@@ -102,7 +104,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         yesButton.isEnabled = isEnabled
     }
     
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.question
         indexLabel.text = step.questionNumber
@@ -123,34 +125,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         hideIndicator()
     }
     
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-            guard let statisticService = staticServise else {
-                presenter.switchToNextQuestion()
-                return
-            }
-            statisticService.store(correct: correctAnswers, total: presenter.questionsAmount)
-            
-            let text = "Ваш результат: \(correctAnswers)/\(presenter.questionsAmount)\nКоличество сыгранных квизов:  \(statisticService.gamesCount)\nРекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
-            
-            let viewModel = AlertModel(title: "Этот раунд окончен!",
-                                       message: text,
-                                       buttonText: "Сыграть еще раз") { [weak self]  in
-                guard let self else { return }
-                self.correctAnswers = 0
-                self.presenter.resetQuestionIndex()
-                showIndicator()
-                self.questionFactory?.requestNextQuestion()
-            }
-            
-            alertPresented.showAlert(model: viewModel)
-        } else {
-            showIndicator()
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-            
-        }
-    }
     
     func didLoadDataFromServer() {
         questionFactory?.requestNextQuestion()
