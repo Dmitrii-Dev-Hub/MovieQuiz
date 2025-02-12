@@ -17,7 +17,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
     
     func requestNextQuestion() {
         DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             let index = (0..<self.movies.count).randomElement() ?? 0
             
             guard let movie = self.movies[safe: index] else { return }
@@ -28,6 +28,20 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
+                
+                DispatchQueue.main.async {
+                    let alertModel = AlertModel(
+                        title: "Ошибка загрузки",
+                        message: "Невозможно загрузить постер",
+                        buttonText: "Начать тест заново") { [weak self] in
+                            guard let self else { return }
+                            self.loadData()
+                        }
+                    
+                    let alert = AlertPresenter()
+                    alert.showAlert(model: alertModel)
+                    return
+                }
             }
             
             let rating = Float(movie.rating) ?? 0
@@ -38,7 +52,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
                                         correctAnswer: correctAnswer)
             
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
+                guard let self else { return }
                 self.delegate?.didReceiveNextQuestion(question: question)
             }
         }
@@ -47,7 +61,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
             DispatchQueue.main.async {
-                guard let self = self else { return }
+                guard let self else { return }
                 switch result {
                 case .success(let mostPopularMovies):
                     self.movies = mostPopularMovies.items
