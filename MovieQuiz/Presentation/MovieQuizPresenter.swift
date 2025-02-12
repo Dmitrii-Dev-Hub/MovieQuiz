@@ -3,6 +3,7 @@ import UIKit
 
 final class MovieQuizPresenter {
     
+    
     var alertPresented = AlertPresenter()
     var questionFactory: QuestionFactory?
     let questionsAmount: Int = 10

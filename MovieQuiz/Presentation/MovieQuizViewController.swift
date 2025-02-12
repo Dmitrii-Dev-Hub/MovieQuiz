@@ -12,10 +12,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
-    //var correctAnswers: Int = .zero
-    //private var alertPresented = AlertPresenter()
-    //private var staticServise: StatisticServiceProtocol?
-    var questionFactory: QuestionFactory?
+    
+    
     private let presenter = MovieQuizPresenter()
     
     // MARK: - Lifecycle
@@ -25,7 +23,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         presenter.alertPresented.delegate = self
         let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         
-        self.questionFactory = questionFactory
+        presenter.questionFactory = questionFactory
         questionFactory.loadData()
         presenter.staticServise = StatisticServiceImplementation()
         
@@ -70,7 +68,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self.presenter.resetQuestionIndex()
             presenter.correctAnswers = 0
             
-            self.questionFactory?.requestNextQuestion()
+            presenter.questionFactory?.requestNextQuestion()
         }
         
         presenter.alertPresented.showAlert(model: model)
@@ -93,7 +91,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             changeStateButton(isEnabled: true)
             self.imageView.layer.borderColor = UIColor.clear.cgColor
             self.presenter.correctAnswers = presenter.correctAnswers
-            self.presenter.questionFactory = self.questionFactory
+            self.presenter.questionFactory = presenter.questionFactory
             self.presenter.showNextQuestionOrResults()
             
         }
@@ -127,7 +125,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     
     func didLoadDataFromServer() {
-        questionFactory?.requestNextQuestion()
+        presenter.questionFactory?.requestNextQuestion()
         hideIndicator()
     }
     
